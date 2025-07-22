@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    @apply bg-light text-dark transition-colors duration-300;
+}
+
+.dark-mode body {
+    @apply bg-dark text-light;
+}
+
+/* 响应式容器基础样式 */
+.responsive-container {
+    @apply w-full mx-auto px-4;
+
+    /* 小屏 */
+    @apply sm:max-w-screen-sm sm:px-6;
+
+    /* 中屏 */
+    @apply md:max-w-screen-md;
+
+    /* 大屏 */
+    @apply lg:max-w-screen-lg;
+
+    /* 超大屏 */
+    @apply xl:max-w-screen-xl;
+}

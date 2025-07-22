@@ -1,0 +1,87 @@
+name: Deploy Vue3 App to Server
+
+on:
+  # push:
+   # branches: [ main ] # 只在 main 分支推送时触发
+    # branches: [ master ] # 如果你的主分支是 master
+  workflow_dispatch:  # 仅允许手动触发
+    inputs:
+      environment:
+        description: '选择部署环境'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - staging
+          - production
+      confirm:
+        description: '输入 "yes" 确认部署'
+        required: true
+        default: 'no'
+
+env:
+  # 服务器SSH私钥
+  SSH_PRIVATE_KEY: |
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+    QyNTUxOQAAACATi0ewjzvzPuBaZchj7ztAughYS+cDbZgn+Px6YIIKSwAAAKBurdCkbq3Q
+    pAAAAAtzc2gtZWQyNTUxOQAAACATi0ewjzvzPuBaZchj7ztAughYS+cDbZgn+Px6YIIKSw
+    AAAEDKM+oIp/l/JFfwNIo0dHCHbLU/1dtmFVEGRNfkRYjBfBOLR7CPO/M+4FplyGPvO0C6
+    CFhL5wNtmCf4/HpgggpLAAAAHHJvb3RAaVpqNmNnOTh6NWl3dGlvOXY5OHVka1oB
+    -----END OPENSSH PRIVATE KEY-----
+#  SERVER_IP: ${{ secrets.SERVER_IP }}             # 服务器IP地址
+  SERVER_IP: '47.86.98.146'
+#  SERVER_USER: ${{ secrets.SERVER_USER }}         # 服务器用户名
+  SERVER_USER: 'root'
+#  SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }} # 服务器密码
+  # SERVER_PASSWORD: 'kZL2RxiMj7Ys'
+#  DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}         # 服务器部署路径
+  DEPLOY_PATH: '/opt/1panel/www/sites/www.kkgametop.xyz/index/'
+  BUILD_SCRIPT: build.sh                          # 本地构建脚本名
+  DEPLOY_SCRIPT: deploy.sh                        # 服务器部署脚本名
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.17.1' # 使用你项目所需的Node版本
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Clear node_modules
+        run: rm -rf node_modules
+
+      - name: Run build script
+        run: chmod +x ./${{ env.BUILD_SCRIPT }} && ./${{ env.BUILD_SCRIPT }}
+
+      - name: Create artifact directory
+        run: mkdir -p artifact
+
+      - name: Archive production artifacts
+        run: |
+          cp -r dist/* artifact/
+          tar -czvf artifact.tar.gz artifact/
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
+
+      - name: Copy artifacts to server
+        run: scp -r artifact.tar.gz $SERVER_USER@$SERVER_IP:/tmp/
+  
+      - name: Copy deploy script to server
+        run: scp -r $DEPLOY_SCRIPT $SERVER_USER@$SERVER_IP:/tmp/
+  
+      - name: Execute remote deploy script
+        run: ssh $SERVER_USER@$SERVER_IP "chmod +x /tmp/$DEPLOY_SCRIPT && /tmp/$DEPLOY_SCRIPT"

@@ -1,0 +1,49 @@
+{
+  "name": "game-client-web-v2",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "pro": "vite --mode production",
+    "build:dev": "vite build --mode development && node ./prebuild/build.js",
+    "build:prod": "vite build --mode production && node ./prebuild/build.js",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@vueuse/components": "^13.1.0",
+    "@vueuse/core": "^13.0.0",
+    "animate.css": "^4.1.1",
+    "axios": "^1.10.0",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.1",
+    "crypto-js": "^4.2.0",
+    "dompurify": "^3.2.6",
+    "js-base64": "^3.7.7",
+    "localforage": "^1.10.0",
+    "luxon": "^3.6.1",
+    "mitt": "^3.0.1",
+    "pinia": "^3.0.3",
+    "process": "^0.11.10",
+    "qrcode": "^1.5.4",
+    "sass": "^1.89.2",
+    "stream-browserify": "^3.0.0",
+    "util": "^0.12.5",
+    "vue": "^3.5.13",
+    "vue-i18n": "^11.1.2",
+    "vue-router": "^4.5.1",
+    "vue3-seamless-scroll": "^3.0.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.4",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "unplugin-auto-import": "^19.1.1",
+    "unplugin-vue-components": "^28.4.1",
+    "vite": "^5.4.19",
+    "vite-plugin-pwa": "^1.0.1",
+    "workbox-build": "^7.3.0",
+    "workbox-window": "^7.3.0"
+  }
+}
